@@ -5,14 +5,14 @@
     <script type="importmap">
     {
       "imports": {
-        "zerofishEngine.js": "./zerofishEngine.js"
+        "zerofishEngine.js": "https://bobgore.github.io/chess_engine/zerofishEngine.js"
       }
     }
     </script>
 </head>
 <body>
     <script type="module">
-        import ZeroEngine from './zerofish.js'; 
+        import ZeroEngine from 'https://bobgore.github.io/chess_engine/zerofish.js'; 
 
         ZeroEngine({
             locator: function(file) { 
@@ -23,7 +23,7 @@
             const maiaNet = {
                 key: 'maia-1900',
                 fetch: async function(key) {
-                    const response = await fetch('./maia-1900.pb.gz');
+                    const response = await fetch('https://bobgore.github.io/chess_engine/maia-1900.pb.gz');
                     const ds = new DecompressionStream('gzip');
                     const decompressedStream = response.body.pipeThrough(ds);
                     const decompressedResponse = new Response(decompressedStream);
