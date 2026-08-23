@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Maia Zerofish Test</title>
+    
+    <script type="importmap">
+    {
+      "imports": {
+        "zerofishEngine.js": "./zerofishEngine.js"
+      }
+    }
+    </script>
+</head>
+<body>
+    <h1>Testing Maia 1900</h1>
+    <script type="module">
+        import ZeroEngine from './zerofish.js'; 
+
+        ZeroEngine({
+            locator: function(file) { 
+                return file; 
+            }
+        }).then(async function(engine) {
+            console.log("✅ Wasm manager successfully booted!");
+
+            // 1. Define the network provider Maia requires
+            const maiaNet = {
+                key: 'maia-1900',
+                fetch: async function(key) {
+                    console.log("Fetching and decompressing weights for:", key);
+                    const response = await fetch('./maia-1900.pb.gz');
+                    
+                    // Unzip the file on the fly using the browser's built-in decoder
+                    const ds = new DecompressionStream('gzip');
+                    const decompressedStream = response.body.pipeThrough(ds);
+                    
+                    // Convert the raw, uncompressed bytes into the array the engine expects
+                    const decompressedResponse = new Response(decompressedStream);
+                    const buffer = await decompressedResponse.arrayBuffer();
+                    return new Uint8Array(buffer);
+                }
+            };
+
+            // 2. Starting position FEN
+            const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+            try {
+                console.log("Evaluating position with Maia 1900 (nodes: 1)...");
+                
+                // 3. Ask Maia for a move evaluation
+                const result = await engine.goZero(startFen, {
+                    net: maiaNet,
+                    nodes: 1,
+                    multipv: 1
+                });
+
+                console.log("🎉 Maia Analysis Result:", result);
+            } catch (err) {
+                console.error("Evaluation error:", err);
+            }
+        });
+    </script>
+</body>
+</html>
